@@ -1,0 +1,16 @@
+Trigger a build using the following
+
+> .git/hooks/post-commit
+
+#!/bin/sh
+echo "executing post-commit"
+curl -X POST http://localhost:8080/job/SpringBootJob/build?delay=0sec --user <jenkins-user>:<jenkins-pswd>
+exit 0
+
+This is better as it does not require any user authentication
+
+#!/bin/sh
+echo "executing post-commit"
+curl http://localhost:8080/git/notifyCommit?url=file://c:/javaProj/gs-spring-boot
+exit 0
+

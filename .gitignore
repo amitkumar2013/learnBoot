@@ -1,0 +1,45 @@
+.DS_Store
+*.java.hsp
+*.sonarj
+*.sw*
+build.sh
+integration-repo
+ivy-cache
+*.log
+spring-test/test-output/
+.gradle
+argfile*
+activemq-data/
+
+classes/
+bin
+/build
+buildSrc/build
+/spring-*/build
+/spring-core/kotlin-coroutines/build
+/framework-bom/build
+/integration-tests/build
+/src/asciidoc/build
+target/
+
+# Eclipse artifacts, including WTP generated manifests
+.classpath
+.metadata
+.project
+.recommenders
+.settings
+.springBeans
+spring-*/src/main/java/META-INF/MANIFEST.MF
+
+# IDEA artifacts and output dirs
+*.iml
+*.ipr
+*.iws
+.idea
+out
+test-output
+atlassian-ide-plugin.xml
+.gradletasknamecache
+
+# VS Code
+.vscode
