@@ -6,6 +6,11 @@ import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 
 import hello.ws.client.QuoteClient;
 
+/**
+ * The world still has some wsdl-based SOAP services to be consumed.
+ *
+ */
+
 @Configuration
 public class WSConfiguration {
 

@@ -1,4 +1,4 @@
-package com.example.demo.api;
+package com.example.demo.config;
 
 import java.util.Arrays;
 
@@ -13,6 +13,11 @@ import com.example.demo.data.validation.NameValidator;
 import com.example.demo.data.validation.UserValidator;
 import com.example.demo.data.validation.UserValidatorComposite;
 
+/**
+ * In case there are a number of Validators and we want to group them.
+ * 
+ * @author amit.30.kumar
+ */
 @Configuration
 public class ValidatorConfiguration {
 
@@ -31,6 +36,7 @@ public class ValidatorConfiguration {
 		return new EntityValidator(userRepo);
 	}
 
+	// This is autowired in UserService
 	@Bean
 	@Primary
 	UserValidator orderItemValidator(UserDao userRepo) {

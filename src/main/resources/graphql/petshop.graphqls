@@ -1,0 +1,14 @@
+enum PetAnimal {
+    DOG
+    CAT
+    BADGER
+    MAMMOTH
+}
+
+type Pet {
+    id: ID!
+    type: PetAnimal!
+    name: String
+    age: Int
+}
+

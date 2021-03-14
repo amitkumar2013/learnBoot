@@ -43,3 +43,6 @@ atlassian-ide-plugin.xml
 
 # VS Code
 .vscode
+
+# Lucene Index
+data/index/

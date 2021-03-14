@@ -8,8 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
-import com.example.demo.data.unstruc.Product;
-import com.example.demo.data.unstruc.ProductDao;
+import com.example.demo.data.rest.ProductDao;
+import com.example.demo.data.rest.model.Product;
 
 /*
  * Specific DAO tests
@@ -31,7 +31,7 @@ public class ProdRepositoryTest {
     @Test
     public void whenFindByName_thenReturnProduct() {
         // setup
-        Product testProduct = new Product(null, "product1", 20);
+        Product testProduct = Product.builder().name("product1").price(20).build();
         entityManager.persist(testProduct);
         entityManager.flush();
      

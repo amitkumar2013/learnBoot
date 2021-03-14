@@ -1,0 +1,62 @@
+package com.example.auth.api.config;
+
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+
+@EnableWebSecurity // This will disable the default auto-configuration and enable our custom security configuration.
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+	
+	// Authentication : User --> Roles
+
+	//@Autowired
+	//public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+	// OR
+	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+		auth.inMemoryAuthentication()
+				.passwordEncoder(PasswordEncoderFactories.createDelegatingPasswordEncoder()) // uses BCrypt
+				.withUser("user1").password("secret1").roles("USER").and()
+				.withUser("admin1").password("secret1").roles("USER", "ADMIN");
+	}
+	// OR
+	/*
+	@Bean
+	@Override
+	public UserDetailsService userDetailsService() {
+		PasswordEncoder pwdEnc = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+		UserDetails user = User.withUsername("user").password(pwdEnc.encode("password")).roles("USER").build();
+		return new InMemoryUserDetailsManager(user);
+	}
+	*/
+
+	// Authorization : Role -> Access
+	protected void configure(HttpSecurity http) throws Exception {
+		http
+			.authorizeRequests()
+				.antMatchers("/greet").hasRole("USER")
+				.antMatchers("/").hasRole("ADMIN")
+				.antMatchers("/home", "/about-us").permitAll()
+				.anyRequest().authenticated()
+			.and()
+				.httpBasic()
+/*			.and()
+				.formLogin()
+					.loginPage("/login").permitAll()
+        	.and()
+        		.logout().permitAll()
+*/			.and()
+				.csrf().disable()
+				.headers().frameOptions().disable();
+	}
+	
+    // Misc.
+	// /css/**, /js/**, /images/**, /webjars/**, /**/favicon.ico, /error - are secured by default
+	@Override
+	public void configure(WebSecurity web) throws Exception {
+		web.ignoring().antMatchers("/resources/**");
+	}
+
+}

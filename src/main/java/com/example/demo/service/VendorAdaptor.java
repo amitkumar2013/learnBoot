@@ -5,12 +5,15 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-/*
- * The class connects to both a vendor-api.
+/**
+ * Web-Service consumer, the class connects to a vendor-api.
+ * 
+ * @author amit.30.kumar
  */
 @Service
 public class VendorAdaptor {
 
+	// This can go in Configuration as well - default to @Autowired
 	private RestTemplate restTemplate;
 
 	// restTemplateBuilder need not be autowired - its spring's magic

@@ -1,0 +1,104 @@
+package com.example.demo.data.search;
+
+import java.util.List;
+
+import org.apache.lucene.search.Query;
+import org.hibernate.search.engine.ProjectionConstants;
+import org.hibernate.search.jpa.FullTextEntityManager;
+import org.hibernate.search.jpa.FullTextQuery;
+import org.hibernate.search.query.dsl.QueryBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+import com.example.demo.data.rest.model.Product;
+
+@Repository
+@SuppressWarnings("unchecked")
+public class JPALuceneSearcher {
+
+	@Autowired
+	private FullTextEntityManager fullTextEntityManager;
+
+	private FullTextQuery getJpaQuery(org.apache.lucene.search.Query luceneQuery) {
+		return fullTextEntityManager.createFullTextQuery(luceneQuery, Product.class);
+	}
+
+	private QueryBuilder getQueryBuilder() {
+		return fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(Product.class).get();
+	}
+
+	// Options
+	public List<Product> searchProductNameByKeywordQuery(String text) {
+		Query keywordQuery = getQueryBuilder().keyword().onField("name").matching(text).createQuery();
+		List<Product> results = getJpaQuery(keywordQuery).getResultList();
+		return results;
+	}
+
+	public List<Product> searchProductNameByFuzzyQuery(String text) {
+		Query fuzzyQuery = getQueryBuilder().keyword().fuzzy().withEditDistanceUpTo(2).withPrefixLength(0)
+				.onField("name").matching(text).createQuery();
+		List<Product> results = getJpaQuery(fuzzyQuery).getResultList();
+		return results;
+	}
+
+	public List<Product> searchProductNameByWildcardQuery(String text) {
+		Query wildcardQuery = getQueryBuilder().keyword().wildcard().onField("name").matching(text)
+				.createQuery();
+		List<Product> results = getJpaQuery(wildcardQuery).getResultList();
+		return results;
+	}
+
+	public List<Product> searchProductDescriptionByPhraseQuery(String text) {
+		Query phraseQuery = getQueryBuilder().phrase().withSlop(1).onField("description").sentence(text).createQuery();
+		List<Product> results = getJpaQuery(phraseQuery).getResultList();
+		return results;
+	}
+
+	public List<Product> searchProductNameAndDescriptionBySimpleQueryStringQuery(String text) {
+		Query simpleQueryStringQuery = getQueryBuilder().simpleQueryString().onFields("name", "description")
+				.matching(text).createQuery();
+		List<Product> results = getJpaQuery(simpleQueryStringQuery).getResultList();
+		return results;
+	}
+
+	public List<Product> searchProductNameByRangeQuery(int low, int high) {
+		Query rangeQuery = getQueryBuilder().range().onField("price").from(low).to(high).createQuery();
+		List<Product> results = getJpaQuery(rangeQuery).getResultList();
+		return results;
+	}
+
+	public List<Object[]> searchProductNameByMoreLikeThisQuery(Product entity) {
+		Query moreLikeThisQuery = getQueryBuilder().moreLikeThis().comparingField("name").toEntity(entity)
+				.createQuery();
+		List<Object[]> results = getJpaQuery(moreLikeThisQuery)
+				.setProjection(ProjectionConstants.THIS, ProjectionConstants.SCORE).getResultList();
+		return results;
+	}
+
+	public List<Product> searchProductNameAndDescriptionByKeywordQuery(String text) {
+		Query keywordQuery = getQueryBuilder().keyword().onFields("name", "description").matching(text)
+				.createQuery();
+		List<Product> results = getJpaQuery(keywordQuery).getResultList();
+		return results;
+	}
+
+	public List<Object[]> searchProductNameAndDescriptionByMoreLikeThisQuery(Product entity) {
+		Query moreLikeThisQuery = getQueryBuilder().moreLikeThis().comparingField("name").toEntity(entity)
+				.createQuery();
+		List<Object[]> results = getJpaQuery(moreLikeThisQuery)
+				.setProjection(ProjectionConstants.THIS, ProjectionConstants.SCORE).getResultList();
+		return results;
+	}
+
+	public List<Product> searchProductNameAndDescriptionByCombinedQuery(String manufactorer, int memoryLow,
+			int memoryTop, String extraFeature, String exclude) {
+		Query combinedQuery = getQueryBuilder().bool()
+				.must(getQueryBuilder().keyword().onField("name").matching(manufactorer).createQuery())
+				.must(getQueryBuilder().range().onField("price").from(memoryLow).to(memoryTop).createQuery())
+				.should(getQueryBuilder().phrase().onField("description").sentence(extraFeature).createQuery())
+				.must(getQueryBuilder().keyword().onField("name").matching(exclude).createQuery()).not()
+				.createQuery();
+		List<Product> results = getJpaQuery(combinedQuery).getResultList();
+		return results;
+	}
+}

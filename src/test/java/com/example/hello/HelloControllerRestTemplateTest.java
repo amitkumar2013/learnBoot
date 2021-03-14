@@ -1,4 +1,4 @@
-package hello;
+package com.example.hello;
 
 //import static org.junit.Assert.assertThat;
 //import static org.hamcrest.Matchers.equalTo;
@@ -7,21 +7,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.net.URL;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit4.SpringRunner;
 
-import hello.api.HelloService;
+import com.example.demo.api.UserController;
+import com.example.demo.service.MiscService;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes= {hello.Application.class, hello.api.HelloController.class})
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes= {UserController.class})
 public class HelloControllerRestTemplateTest {
 
 	// The above starts the dummy server at RANDOM_PORT and this one discovers it.
@@ -35,12 +33,12 @@ public class HelloControllerRestTemplateTest {
 	// @MockBean
 	// private XYZService xyzService;
 	@MockBean
-	private HelloService helloService;
+	private MiscService helloService;
 
 	@Autowired
 	private TestRestTemplate template;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		this.base = new URL("http://localhost:" + port + "/");
 		// given(this.xyzService.getXXX(id)).willReturn(new XXX(arg));

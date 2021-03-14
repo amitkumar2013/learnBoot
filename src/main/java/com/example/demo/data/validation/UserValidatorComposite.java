@@ -2,10 +2,13 @@ package com.example.demo.data.validation;
 
 import java.util.List;
 
-import com.example.demo.data.struc.User;
+import com.example.demo.data.struc.model.User;
 
-/*
- * These classes are registered in the spring context by ValidatorConfiguration
+/**
+ * These classes are registered in the spring context by ValidatorConfiguration using new
+ * Could have been @Component - which they are not by definition. 
+ * 
+ * @author amit.30.kumar
  */
 public class UserValidatorComposite implements UserValidator {
 

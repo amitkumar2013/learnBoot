@@ -1,4 +1,4 @@
-package com.example.demo.data.struc;
+package com.example.demo.data.struc.model;
 
 import java.io.Serializable;
 
@@ -10,36 +10,31 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.Min;
 
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
-import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
-/*
- * This is a sample entity highlighting LOMBOK's capabilities. 
+/**
+ * This is a sample entity highlighting LOMBOK's capabilities.
+ * 
+ * @author amit.30.kumar
  */
-
 @Entity
 @Table(name = "users")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@ToString // (exclude = { "age" })
-@EqualsAndHashCode(of = { "lastname" })
-@Builder
 @Slf4j
-@SuppressWarnings("serial")
+@Data
+@NoArgsConstructor // For JAVAX Persistence
+@Builder
+@AllArgsConstructor // For Builder
+//@EqualsAndHashCode(of = { "lastName" })
+//@ToString // (exclude = { "age" })
 //@EntityListeners(AuditingEntityListener.class) // This is audit listener from spring data jpa - only works with @EnableJpaAuditing
+@SuppressWarnings("serial")
 public class User implements Serializable {
 
 	@Id
@@ -48,13 +43,13 @@ public class User implements Serializable {
 	private Long id;
 
 	@Column(length = 25)
-	private @NonNull String firstname;
-	private @NonNull String lastname;
+	private @NonNull String firstName;
+	private @NonNull String lastName;
 	private @Min(18) int age;
 
 	public String getName() {
 		log.debug("lombok does provide a log handles");
-		return this.lastname + ", " + this.firstname;
+		return this.lastName + ", " + this.firstName;
 	}
 	
 	/* Works with Audit - move it to @MappedSuperClass

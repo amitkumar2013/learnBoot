@@ -1,24 +1,84 @@
 server:
   application.name: demo
-  port: 9898
+  port: 8080
+  # Disabled by default since spring boot 2.2
+  tomcat.mbeanregistry.enabled: true
+  ## Default connection pool for spring boot starter JPA - HikariCP
+  error:
+    include-message: always
+    include-binding-errors: always
+    # only if we include the trace param in the URL (?trace=true) so 'never' for prod
+    include-stacktrace: on_trace_param
+    include-exception: false
+    
+# -------------------------------- METRICS ---------------------------------------------
 management:
   server.port: 8082
   # now monitoring can be done from management port instead of server port i.e. http://localhost:8081/actuator/monitoring
   endpoints:
-    web.exposure.include: info,health,monitoring 
+#   web.exposure.include: info,health,monitoring,prometheus 
+    web.exposure.include: '*' 
     shutdown.enabled: true
+  metrics:
+    tags:
+      application: ${server.application.name}
+    # instrumentation occurs for all requests, else add @Timed
+    web.server.request.autotime:
+      enabled: true
+      percentiles: 0.95
+  # when-authorized, always, never
+  endpoint.health.show-details: always 
 
-logging.level.root: INFO
-## Default connection pool for spring boot starter JPA - HikariCP
-
+# -------------------------------- LOGGING ---------------------------------------------
+logging.level:
+  root: INFO
+  web: INFO
+  org.springframework.security: INFO
+  # for the password
+  org.springframework.boot.autoconfigure.security: INFO
+  
 spring:
+  # SLEUTH TRACING -----------------------------------------
+  sleuth:
+    opentracing.enabled: true
+    circuitbreaker.enabled: true
+    async.enabled: true
+    scheduled.enabled: true
+    sampler.rate: 10
+    baggage:
+      foo: bar
+      country-code: IN
+      remote-fields:
+       - country-code
+       - foo 
+      local-fields:
+       - country-code
+      correlation-fields: country-code
+      tag.enabled: true
+      tag-fields:
+       - country-code
+  zipkin:
+    baseUrl: http://localhost:9411   
+    # fallback does not work without bootstrap.yml
+    service.name: ${server.application.name}
+    locator.discovery.enabled: true
+  # REDIS CACHE -----------------------------------------
+  cache.type: redis
+  # DATABASES -----------------------------------------
+  redis:
+    host: localhost
+    port: 6379
+  # Session can be injected in any Controller layer and utilized i.e. HttpSession
+  session:
+    store-type: redis
+    timeout.seconds: 900
   h2.console:
     enabled: true
     path: /h2
     settings:
       trace: false
       # remote access
-      web-allow-others: false
+      web-allow-others: true
   jpa:
     # As we are loading sql from file switch this off
     hibernate.ddl-auto: none 
@@ -38,13 +98,48 @@ spring:
 #    schema: file:mysql-schema.sql
 #    data: classpath:mysql-data.sql
   data.mongodb.uri: mongodb://test-user:test-password@localhost:27017/testdb
-  devtools:
-    remote:
+  # LOGGING ---------------------------------------------
+  messages:
+    basename: lang/res
+  # JSP ---------------------------------------------
+  mvc.view:
+    prefix: /WEB-INF/jsp/
+    suffix: .jsp
+  # SOLR Search -------------------------------------------
+  data.solr.host: http://127.0.0.1:8983/solr
+  # DevTools ----------------------------------------------
+  # https://github.com/spring-projects/spring-security/issues/9295 - with Keycloak & redis - maybe use latest jar 2.4.3 
+# devtools:
+  # remote:
       # Enables server to allow debugging - risky
-      secret: mysecret
+  #   secret: mysecret
       # TODO org.springframework.boot.devtools.RemoteSpringApplication http://localhost:9898
-      debug.local-port: 8899
-    
+  #   debug.local-port: 8899
+      # Too much bean logging
+  #   restart.log-condition-evaluation-delta: false
+      
+# Default Spring Security provides - 
+#   form, user-pswd, BCrypt protected pswd storage, csrf, session-fixation, headers [HSTS,Cache,ContentType,XSS,xFrame]
+
+  # SECURITY OAUTH2 (authorization code grant) ------------------------------------------
+  security:
+    oauth2:
+      # This being Client Application
+      client:
+        registration:
+          # Registration client Id 'github' is registered as callback url i.e. {baseUrl}/login/oauth2/code/{registrationId:github}
+          # To obtain an access token from GitHub (the Authorization Server).
+          github:
+            client-id: 7ae5f055cd288972a3fc
+            client-secret: 3636696698cafb7933ead043a59f9a66f1371b0e
+          google:
+            client-id: 704727156570-8c738q11ah22qfh9hm4jfvgh3bdehqpl.apps.googleusercontent.com
+            client-secret: -lBTGkj6jBNCyFH4Qje9ZV4D
+          # spring supports only 4: Goolge, Github, Facebook & Okta - @see CommonOAuth2Provider.java
+          # Okta gives multi-tenancy
+# -------------------------------- PROFILING ---------------------------------------------
+
+# http://localhost:{$management.server.port}/actuator/monitoring    
 javamelody:
   # Enable JavaMelody auto-configuration (optional, default: true)
   enabled: true
@@ -70,3 +165,67 @@ javamelody:
     #storage-directory: /tmp/javamelody
     # to change the default "/monitoring" path:
     #monitoring-path: /admin/performance
+
+# -------------------------------- SECURITY ---------------------------------------------
+keycloak:
+  # Flag
+  enabled: true
+  # Keycloak location
+  auth-server-url: http://localhost:8000/auth
+  realm: demo
+  # Client Name i.e. name of this application as in Keycloak.
+  resource: demo-app
+  # establishes if communications with the Keycloak server must happen over HTTPS for 'external' or 'all'
+  ssl-required: external
+  # RBAC against ABAC and others.
+  use-resource-role-mappings: true
+  # replace with one that is generated ???
+  credentials.secret: 2846107d-1756-4645-80cf-e8b3654b361c
+  # Name of the JWT field for Principal 
+  principal-attribute: preferred_username
+
+# policy-enforcer-config: ...
+
+# resource: ui-app
+
+  # prevents the application from sending credentials to the Keycloak server 
+  # [default:false for confidential clients; true for public clients]
+# public-client: true
+
+  # two kinds of bearer tokens supported by Spring Security: JWT & opaque tokens
+  # (are identifier that points to the information stored at the authorization server)
+# bearer-only: true
+
+# Its better in code @KeycloakConfig ---------------------------------------------
+
+# securityConstraints[0]:
+#   authRoles[0]: admin
+#   authRoles[1]: user
+#   securityCollections[0]:
+#     name: insecure stuff
+#     patterns[0]: /insecure
+
+# securityConstraints[1]:
+#   authRoles[0]: admin
+#   securityCollections[0]:
+#     name: admin stuff
+#     patterns[0]: /admin
+
+# -------------------------------- SEARCH ---------------------------------------------
+lucene:
+  index.location: ./data/index
+search.records:
+  default: 10
+  max: 1000
+hibernate.search.default:
+  directory_provider: filesystem
+  indexBase: ./data/jpaindex/default  
+
+# -------------------------------- GRAPH QL ---------------------------------------------
+
+  
+  
+  
+  
+  
+

@@ -16,8 +16,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.example.demo.data.struc.User;
-import com.example.demo.service.GreetingService;
+import com.example.demo.data.struc.model.User;
+import com.example.demo.service.MiscService;
 import com.example.demo.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -34,7 +34,7 @@ public class UserCtrlMockTest {
 
 	// This would also be needed
 	@MockBean
-	private GreetingService greetingService;
+	private MiscService greetingService;
 	@Test
 	public void tryMvc() throws Exception {
 		// A mock greeting service
@@ -51,7 +51,7 @@ public class UserCtrlMockTest {
 	@Test
 	public void tryMockMvc() throws Exception {
 		// A mock UserService
-		when(userService.findByLastname("amit")).thenReturn(new User(1l, "amit", "kumar", 25));
+		when(userService.findByLastname("amit")).thenReturn(User.builder().id(1L).firstName("Amit").lastName("Kumar").age(11).build());
 		this.mockMvc.perform(get("/user/name/amit"))
 					//.andDo(print())
 					.andExpect(status().isOk())
@@ -65,7 +65,7 @@ public class UserCtrlMockTest {
 	@Test
 	public void tryPost() throws Exception {
 		// create json
-	    String userDetail = objectMapper.writeValueAsString(new User(1l, "firstName", "lastName", 18));
+	    String userDetail = objectMapper.writeValueAsString(User.builder().id(1L).firstName("Amit").lastName("Kumar").age(11).build());
 		this.mockMvc.perform(post("/updateUser").content(userDetail)
 	      			.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
 					//.andDo(print())
@@ -76,7 +76,7 @@ public class UserCtrlMockTest {
 	@Test
 	public void tryPost_thenFailValidationOnPayload() throws Exception {
 		// Not meeting the parameter's attribute and failing Validation
-	    String userDetail = objectMapper.writeValueAsString(new User(1l, "firstName", "lastName", 17));
+	    String userDetail = objectMapper.writeValueAsString(User.builder().id(1L).firstName("Amit").lastName("Kumar").age(11).build());
 		this.mockMvc.perform(post("/updateUser").content(userDetail)
 	      			.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
 					.andDo(print())

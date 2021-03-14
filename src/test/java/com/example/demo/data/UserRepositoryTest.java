@@ -8,8 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
-import com.example.demo.data.struc.User;
 import com.example.demo.data.struc.UserDao;
+import com.example.demo.data.struc.model.User;
 
 /*
  * Specific DAO tests
@@ -31,7 +31,7 @@ public class UserRepositoryTest {
     @Test
     public void whenFindByName_thenReturnEmployee() {
         // setup
-        User testUser = new User(null, "fName", "lName", 20);
+        User testUser = User.builder().firstName("fName").lastName("lName").age(20).build();
         entityManager.persist(testUser);
         entityManager.flush();
      

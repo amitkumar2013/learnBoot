@@ -2,8 +2,8 @@ package com.example.demo.data.validation;
 
 import java.util.Optional;
 
-import com.example.demo.data.struc.User;
 import com.example.demo.data.struc.UserDao;
+import com.example.demo.data.struc.model.User;
 
 public class EntityValidator implements UserValidator {
 

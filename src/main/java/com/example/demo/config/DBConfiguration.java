@@ -2,6 +2,8 @@ package com.example.demo.config;
 
 import java.util.HashMap;
 
+//import javax.persistence.EntityManager;
+//import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,21 +14,24 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.data.mongodb.MongoDbFactory;
+import org.springframework.data.mongodb.MongoDatabaseFactory;
 import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration;
-import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
+//import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
 import org.springframework.data.mongodb.config.MongoConfigurationSupport;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.SimpleMongoClientDbFactory;
-import org.springframework.data.mongodb.core.SimpleMongoDbFactory;
+import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
+//import org.springframework.data.mongodb.core.SimpleMongoDbFactory;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import com.mongodb.MongoClientURI;
+//import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoClient;
+
+//import org.hibernate.search.jpa.FullTextEntityManager;
+//import org.hibernate.search.jpa.Search;
 
 /*
  * Spring Boot configures Hibernate as the default JPA provider.
@@ -37,14 +42,16 @@ import com.mongodb.client.MongoClient;
  */
 @Configuration
 //basePackageClasses if they are in same package
-@EnableJpaRepositories(basePackages = "com.example.demo.data.struc", entityManagerFactoryRef = "h2EntityManager", transactionManagerRef = "h2TxnManager")
+@EnableJpaRepositories(basePackages = {"com.example.demo.data.struc","com.example.demo.data.graphql"}, entityManagerFactoryRef = "h2EntityManager", transactionManagerRef = "h2TxnManager")
 //@EnableJpaAuditing // Only works with @EntityListeners on Entities.
 class DBConfiguration {
 
     @Autowired
     private Environment env;
     
-	@Primary
+    //----------------------------------------------- PRIMARY -----------------------------------------
+
+    @Primary
 	@Bean(name="hsqlDS")
 	@ConfigurationProperties(prefix = "spring.datasource")
 	public DataSource inMemoryDataSource() {
@@ -56,7 +63,7 @@ class DBConfiguration {
     public LocalContainerEntityManagerFactoryBean h2EntityManager() {
         final LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(inMemoryDataSource());
-        em.setPackagesToScan("com.example.demo.data.struc");
+        em.setPackagesToScan("com.example.demo.data.struc","com.example.demo.data.graphql");// Kind of repeat from class level annotation
 
         final HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         em.setJpaVendorAdapter(vendorAdapter);
@@ -76,7 +83,9 @@ class DBConfiguration {
     }
 }
 
-// Besides multiple datasource how about separate TransactionManager along with its EntityManagerFactory ???
+//--------------------------------------------- SECONDARY ---------------------------------------------
+
+// Besides multiple datasource viz. separate TransactionManager along with its EntityManagerFactory ???
 /*
  * USAGE:
  *  @Autowired
@@ -84,12 +93,13 @@ class DBConfiguration {
  *  private DataSource dataSource;
  */
 @Configuration
-@EnableJpaRepositories(basePackages = "com.example.demo.data.unstruc", entityManagerFactoryRef = "mysqlEntityManager", transactionManagerRef = "mysqlTxnManager")
+@EnableJpaRepositories(basePackages = "com.example.demo.data.rest", entityManagerFactoryRef = "mysqlEntityManager", transactionManagerRef = "mysqlTxnManager")
 //@EnableAutoConfiguration(exclude={DataSourceAutoConfiguration.class})
 class SecondDBConfiguration {
 	@Bean(name="mySQLDS")
 	@ConfigurationProperties(prefix = "spring.second-datasource")
 	public DataSource mysqlDataSource() {
+		// Below properties are optionally moved to configuration yaml file.
 		//  final DriverManagerDataSource dataSource = new DriverManagerDataSource();
         //	dataSource.setDriverClassName(Preconditions.checkNotNull(env.getProperty("jdbc.driverClassName")));
         //	dataSource.setUrl(Preconditions.checkNotNull(env.getProperty("product.jdbc.url")));
@@ -98,6 +108,7 @@ class SecondDBConfiguration {
 		return DataSourceBuilder.create().build();
 	}
 	/*
+	// Way to pre-populate datasource.
     @Bean
     @Conditional(DataSourceCondition.class)
     public DataSourceInitializer dataSourceInitializer(DataSource dataSource) {
@@ -113,7 +124,7 @@ class SecondDBConfiguration {
     public LocalContainerEntityManagerFactoryBean mysqlEntityManager() {
         final LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(mysqlDataSource());
-        em.setPackagesToScan("com.example.demo.data.unstruc");
+        em.setPackagesToScan("com.example.demo.data.rest");// kind of repeat from class level annotation
         em.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
         return em;
     }
@@ -124,7 +135,27 @@ class SecondDBConfiguration {
         transactionManager.setEntityManagerFactory(mysqlEntityManager().getObject());
         return transactionManager;
     }
+
+    //-------------------------------------- LUCENE INDEX ----------------------------------------------
+    
+	//@Bean - either use lucene 5.5 or hibernate search 6 with lucene 8
+    /*
+	public FullTextEntityManager luceneIndexServiceBean() {
+		FullTextEntityManager fullTextEM = null;
+		try {
+			EntityManager em = mysqlEntityManager().getNativeEntityManagerFactory().createEntityManager();
+			fullTextEM = Search.getFullTextEntityManager(em);
+			fullTextEM.createIndexer().startAndWait();
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
+		return fullTextEM;
+	}
+	*/
+
 }
+
+	//-------------------------------------- MONGO ----------------------------------------------
 
 // The Java configuration requires to define two spring beans -  
 // a) MongoDbFactory, we can provide connection parameters & 
@@ -145,8 +176,8 @@ class NoSQLDBConfiguration {
     private Environment env;
    
     @Bean
-    public MongoDbFactory mongoDbFactory() {
-		return new SimpleMongoClientDbFactory(env.getProperty("spring.data.mongodb.uri"));
+    public MongoDatabaseFactory mongoDbFactory() {
+		return new SimpleMongoClientDatabaseFactory(env.getProperty("spring.data.mongodb.uri"));
 	}
 
 	@Bean

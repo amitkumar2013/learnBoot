@@ -1,26 +1,24 @@
 package com.example.demo.data.nosql;
 
-import org.springframework.data.annotation.Id;
+import java.io.Serializable;
+
+import javax.persistence.Id;
+
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Document(collection = "customers")
-public class Customer {
-
+@Document(collection = "customer")
+@Builder
+@SuppressWarnings("serial")
+public class Customer implements Serializable {
+	
 	@Id
-	public String id;
+	private String id;
 
-	public String firstName;
-	public String lastName;
+	private String firstName;
+	private String lastName;
 
-	@Override
-	public String toString() {
-		return String.format("Customer[id=%s, firstName='%s', lastName='%s']", id, firstName, lastName);
-	}
 }

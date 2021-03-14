@@ -1,27 +1,25 @@
-package hello;
+package com.example.hello;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import hello.api.HelloService;
+import com.example.demo.api.UserController;
+import com.example.demo.service.MiscService;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest(classes= {hello.Application.class, hello.api.HelloController.class})
+@SpringBootTest(classes= {UserController.class})
 //Similar to Doesn't work though 
 //@WebMvcTest({hello.api.HelloController.class,hello.Application.class}) // Don't create the whole application rather just the web layers
 public class HelloControllerMockMVCTest {
@@ -29,10 +27,11 @@ public class HelloControllerMockMVCTest {
 	// Can send a request and test it.
 	//@Autowired 
 	private MockMvc mvc;
+
 	// Stopped working with module levevl scopes. Hence the following
 	@Autowired
 	private WebApplicationContext webApplicationContext;
-	@Before
+	@BeforeAll
 	public void setup() throws Exception {
         MockitoAnnotations.initMocks(this);
 		mvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
@@ -42,7 +41,7 @@ public class HelloControllerMockMVCTest {
 	// providing service for /; but so far it does not do anything which may be
 	// accommodated with a setup as shown below.
 	@MockBean
-	private HelloService helloService;
+	private MiscService helloService;
 
 	// @Before
 	// public void setUp() throws Exception {

@@ -3,7 +3,7 @@ package com.example.demo.data.validation;
 import java.math.BigDecimal;
 import java.util.Optional;
 
-import com.example.demo.data.struc.User;
+import com.example.demo.data.struc.model.User;
 
 public class AgeValidator implements UserValidator {
 

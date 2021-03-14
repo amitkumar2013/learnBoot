@@ -1,0 +1,22 @@
+type Vehicle {
+	id: ID!,
+	type: String,
+	modelCode: String,
+	brandName: String,
+	launchDate: String
+}
+
+# Only one root query is allowed.
+type Query {
+	vehicles(count: Int):[Vehicle]
+	vehicle(id: ID):Vehicle
+    pets: [Pet]
+}
+
+type Mutation {
+	createVehicle(type: String!, modelCode: String!, brandName: String, launchDate: String):Vehicle
+}
+
+type Subscription {
+    vehiclePrice(modelCode: String): String
+}

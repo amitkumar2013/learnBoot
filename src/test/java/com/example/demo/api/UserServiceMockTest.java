@@ -15,8 +15,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 
-import com.example.demo.data.struc.User;
+import com.example.demo.config.ValidatorConfiguration;
 import com.example.demo.data.struc.UserDao;
+import com.example.demo.data.struc.model.User;
 import com.example.demo.service.UserService;
 
 /*
@@ -36,14 +37,14 @@ public class UserServiceMockTest {
 
 	@Test
 	public void serviceWithMockDaoTest() {
-		when(userRepo.findUserByLastnameLikeNative("amit")).thenReturn(new User(1l, "amit", "kumar", 25));
+		when(userRepo.findUserByLastNameLikeNative("amit")).thenReturn(User.builder().id(1L).firstName("Amit").lastName("Kumar").age(11).build());
 		User userSearch = userService.findByLastname("amit");
 		assertEquals(userSearch.getName(), "kumar, amit");
 	}
 
 	@Test
 	public void updateTest() {
-	    User userDetail = new User(1l, "firstname", "lastname", 17);
+	    User userDetail = User.builder().id(1L).firstName("Amit").lastName("Kumar").age(11).build();
 	    // throws IllegalArgumentException for < 18 as per the ageValidator 
 	    IllegalArgumentException exc = assertThrows(IllegalArgumentException.class, () -> {
 		    userService.updateUser(userDetail);	    	

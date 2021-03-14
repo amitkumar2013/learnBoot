@@ -6,6 +6,11 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
+/**
+ * Sample Mongo repository
+ * 
+ * @author amit.30.kumar
+ */
 @Repository
 public interface CustomerDao extends MongoRepository<Customer, String> {
 

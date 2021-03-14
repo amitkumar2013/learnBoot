@@ -20,9 +20,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.example.demo.data.struc.User;
+import com.example.demo.data.rest.ProductDao;
 import com.example.demo.data.struc.UserDao;
-import com.example.demo.data.unstruc.ProductDao;
+import com.example.demo.data.struc.model.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -65,7 +65,7 @@ public class IntgMockTest {
 
 	@Test
 	public void tryRepoMockMvc() throws Exception{
-        when(userRepo.findById(99L)).thenReturn(Optional.of(new User(99L, "Dummy", "Name", 99)));
+        when(userRepo.findById(99L)).thenReturn(Optional.of(User.builder().id(99L).firstName("Amit").lastName("Kumar").age(99).build()));
         // OR another syntax
         //given(userRepo.findById(99L)).willReturn(Optional.of(new User(99L, "Dummy", "Name", 99)));
         this.mockMvc.perform(get("/user/id/99"))

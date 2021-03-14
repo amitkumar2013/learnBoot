@@ -19,3 +19,5 @@ The following guides illustrate how to use some features concretely:
 
 ### Links
 [List of all relevant starters] (https://github.com/spring-projects/spring-boot/tree/master/spring-boot-project/spring-boot-starters)
+
+TODO Kong Integration: [https://blog.codecentric.de/en/2020/11/spring-boot-kong/]

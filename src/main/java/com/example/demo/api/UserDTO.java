@@ -5,14 +5,16 @@ import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import com.example.demo.data.struc.User;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import com.example.demo.data.struc.model.User;
 
-@Getter
-@Setter
-@ToString
+import lombok.Data;
+
+/**
+ * Sample data transfer with Validation built in.
+ * 
+ * @author amit.30.kumar
+ */
+@Data
 public class UserDTO {
 
 	@NotNull

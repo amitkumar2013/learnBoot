@@ -9,3 +9,13 @@ CREATE TABLE users (
   lastname VARCHAR(25) NOT NULL,
   age INT DEFAULT NULL
 );
+
+DROP TABLE IF EXISTS vehicles;
+ 
+CREATE TABLE vehicles (
+  id BIGINT AUTO_INCREMENT  PRIMARY KEY,
+  type VARCHAR(25) NOT NULL,
+  model_code VARCHAR(25) NOT NULL,
+  brand_name VARCHAR(25),
+  launch_date DATE
+);
